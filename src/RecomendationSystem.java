@@ -173,26 +173,26 @@ public class RecomendationSystem {
       }
     }
     V.print(1, 2);
+
+    Matrix result = newton(S, Matrix.identity(S.getRowDimension(), S.getColumnDimension()));
+    result.print(1, 5);
   }
 
 
   public static Matrix newton(Matrix a, Matrix x0) {
+    int contador = 0;
 
     Matrix x1;
     double error = 0.0;
-    double delta = 0.00000001;
     do {
-      Matrix xi = x0.inverse();
-
-      xi = a.times(xi);
-      x0 = x0.plus(xi);
-      x1 = x0.times(0.5);
+      x1 = x0.plus(a.times(x0.inverse())).times(0.5);
       error = Math.abs(x1.normInf() - x0.normInf());
-      x0 = x1.copy();
-      // x0.print(1, 2);
-    } while (error < delta);
+      x0 = x1;
+      System.out.println(contador);
+      System.out.println("--->" + error);
+      contador++;
+    } while (error > 0.000001);
     return x0;
   }
-
 
 }
