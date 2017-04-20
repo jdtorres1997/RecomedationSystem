@@ -109,16 +109,16 @@ public class RecomendationSystem {
     System.out.println("U = ");
     // Get U Matrix
     Matrix U = s.getU();
-    // U.print(1, 2);
+    U.print(1, 2);
     System.out.println("Sigma = ");
     // Get Sigma Matrix
     Matrix S = s.getS();
     Matrix identidad = Matrix.identity(S.getRowDimension(), S.getColumnDimension());
     S.print(1, 2);
 
-    System.out.println("Sigma k = ");
-    Matrix Sk = newton(S, identidad);
-    Sk.print(1, 2);
+//    System.out.println("Sigma k = ");
+//    Matrix Sk = newton(S, identidad);
+//    Sk.print(1, 2);
 
     System.out.println("V = ");
     // Get V Matrix
@@ -127,53 +127,50 @@ public class RecomendationSystem {
     System.out.println("rank = " + s.rank());
     System.out.println("condition number = " + s.cond());
     System.out.println("2-norm = " + s.norm2());
+    
     // Calculate singular values
     System.out.println("singular values = ");
     Matrix svalues = new Matrix(s.getSingularValues(), 1);
     svalues.print(1, 2);
 
+    //get k to reduce USV
+    int k = getK(S);
+    System.out.println("k = " + k);
+    
+    // Reduce USV with k to obtain Uk Sk Vk
+    Matrix Uk = U.getMatrix(0, U.getRowDimension()-1, 0, k);
+    Matrix Sk = S.getMatrix(0, k, 0, k);
+    Matrix Vk = V.getMatrix(0, k, 0, V.getColumnDimension()-1);
 
-    // Method
-    double sumaDiagonalCuadrado = 0;
-    for (int ij = 0; ij < S.rank(); ij++) {
-      sumaDiagonalCuadrado += S.get(ij, ij) * S.get(ij, ij);
-    }
-
-    double disminuir = sumaDiagonalCuadrado;
-    int k;
-
-    for (k = S.rank() - 1; k >= 0; k--) {
-      System.out.println(disminuir / sumaDiagonalCuadrado);
-      if (disminuir / sumaDiagonalCuadrado <= 0.9) {
-
-        break;
-      } else {
-        disminuir -= S.get(k, k) * S.get(k, k);
-      }
-    }
-
-    System.out.println(k);
-    for (int i = k + 1; i < S.getColumnDimension(); i++) {
-      S.set(i, i, 0.0);
-    }
-
-    S.print(1, 2);
-
-
-    for (int j = k + 1; j < U.getColumnDimension(); j++) {
-      for (int i = 0; i < U.getRowDimension(); i++) {
-        U.set(i, j, 0.0);
-      }
-    }
-    U.print(1, 2);
-    V.print(1, 2);
-    for (int i = k + 1; i < V.getRowDimension(); i++) {
-      for (int j = 0; j < V.getColumnDimension(); j++) {
-        V.set(i, j, 0.0);
-      }
-    }
+    
     V.print(1, 2);
 
+        
+//    for (int i = k + 1; i < S.getColumnDimension(); i++) {
+//      S.set(i, i, 0.0);
+//    }
+//
+//    S.print(1, 2);
+//
+//
+//    for (int j = k + 1; j < U.getColumnDimension(); j++) {
+//      for (int i = 0; i < U.getRowDimension(); i++) {
+//        U.set(i, j, 0.0);
+//      }
+//    }
+//    U.print(1, 2);
+// //   V.print(1, 2);
+//    
+//
+//    
+//    for (int i = k + 1; i < V.getRowDimension(); i++) {
+//      for (int j = 0; j < V.getColumnDimension(); j++) {
+//        V.set(i, j, 0.0);
+//      }
+//    }
+//    V.print(1, 2);
+
+    //Calculate Sk^(1/2)
     Matrix result = newton(S, Matrix.identity(S.getRowDimension(), S.getColumnDimension()));
     result.print(1, 5);
   }
@@ -188,11 +185,34 @@ public class RecomendationSystem {
       x1 = x0.plus(a.times(x0.inverse())).times(0.5);
       error = Math.abs(x1.normInf() - x0.normInf());
       x0 = x1;
-      System.out.println(contador);
-      System.out.println("--->" + error);
+//      System.out.println(contador);
+//      System.out.println("--->" + error);
       contador++;
     } while (error > 0.000001);
     return x0;
+  }
+  
+  //Calculate k to reduce USV matrices
+  public static int getK(Matrix S){
+	    double sumaDiagonalCuadrado = 0;
+	    for (int ij = 0; ij < S.rank(); ij++) {
+	      sumaDiagonalCuadrado += S.get(ij, ij) * S.get(ij, ij);
+	    }
+
+	    double disminuir = sumaDiagonalCuadrado;
+	    int k;
+
+	    for (k = S.rank() - 1; k >= 0; k--) {
+//	      System.out.println(disminuir / sumaDiagonalCuadrado);
+	      if (disminuir / sumaDiagonalCuadrado <= 0.9) {
+
+	        break;
+	      } else {
+	        disminuir -= S.get(k, k) * S.get(k, k);
+	      }
+	    }
+	    
+	    return k;
   }
 
 }
