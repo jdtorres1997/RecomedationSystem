@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import Jama.Matrix;
 import Jama.SingularValueDecomposition;
-//Prueba Git
 
 public class RecomendationSystem {
 
@@ -141,11 +140,32 @@ public class RecomendationSystem {
     Matrix Uk = U.getMatrix(0, U.getRowDimension()-1, 0, k);
     Matrix Sk = S.getMatrix(0, k, 0, k);
     Matrix Vk = V.getMatrix(0, k, 0, V.getColumnDimension()-1);
-
     
-    V.print(1, 2);
+    System.out.println("Uk: ");
+    Uk.print(1, 2);
+    System.out.println("Sk: ");
+    Sk.print(1, 2);
+    System.out.println("Vk: ");
+    Vk.print(1, 2);
+    
 
-        
+    //Compute square-root of Sk
+    System.out.println("Sk^(1/2): ");
+    Matrix squareRootSk = newton(Sk, Matrix.identity(Sk.getRowDimension(), Sk.getColumnDimension()));
+    squareRootSk.print(1, 2);
+    
+    //Compute resultant matrices
+    System.out.println("UkSk^(1/2): ");
+    Matrix UkSquareRootSk = Uk.times(squareRootSk);
+    UkSquareRootSk.print(1, 2);
+    System.out.println("Sk^(1/2)Vk: ");
+    Matrix SquareRootSkVk = squareRootSk.times(Vk);
+    SquareRootSkVk.print(1, 2);
+
+    //Compute UkSk^(1/2).Sk^(1/2)Vk (dot product)
+    //double dotProduct = UkSquareRootSk.
+    
+    
 //    for (int i = k + 1; i < S.getColumnDimension(); i++) {
 //      S.set(i, i, 0.0);
 //    }
@@ -169,10 +189,10 @@ public class RecomendationSystem {
 //      }
 //    }
 //    V.print(1, 2);
-
-    //Calculate Sk^(1/2)
-    Matrix result = newton(S, Matrix.identity(S.getRowDimension(), S.getColumnDimension()));
-    result.print(1, 5);
+//
+//    //Calculate Sk^(1/2)
+//    Matrix result = newton(S, Matrix.identity(S.getRowDimension(), S.getColumnDimension()));
+//    result.print(1, 5);
   }
 
 
