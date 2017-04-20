@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import Jama.Matrix;
 import Jama.SingularValueDecomposition;
-
+//Prueba Git
 
 public class RecomendationSystem {
 
@@ -56,7 +56,7 @@ public class RecomendationSystem {
 
     // Read File
     FileReader f = new FileReader(
-      "C:/Users/AVALENCIA/Documents/workspace-sts-3.8.1.RELEASE/RecomendationSystem/Matrix de entrada/in.txt");
+      "C:/Users/GAMMAX/git/RecomedationSystem/Matrix de entrada/in.txt");
     BufferedReader b = new BufferedReader(f);
     // Create Matrix of File read
     Matrix A = Matrix.read(b);
