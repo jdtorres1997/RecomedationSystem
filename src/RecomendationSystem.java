@@ -197,16 +197,22 @@ public class RecomendationSystem {
     Matrix SquareRootSkVk = squareRootSk.times(Vk);
     SquareRootSkVk.print(1, 2);
 
-    // Calculate the recomendation to customer c and product p
-    int c = 5;
-    int p = 3;
-    double dotProduct = cpDotProduct(UkSquareRootSk, SquareRootSkVk, c, p);
-    double customerRatingAverge = columnAverage.get(c);
-    double recomendation = customerRatingAverge + dotProduct;
-
-    System.out.println("Dot Product: " + dotProduct );
-    System.out.println("customerRatingAverge: " + customerRatingAverge);
-    System.out.println("Recomendation: " + recomendation);
+    // Calculate the recommendation to customer c and product p
+    
+    //delete for
+    for(int c = 0; c<A.getRowDimension(); c++){
+        for(int p = 0; p<A.getColumnDimension(); p++){
+//            int c = 1;
+//            int p = 2;
+            double dotProduct = cpDotProduct(UkSquareRootSk, SquareRootSkVk, c, p);
+            double customerRatingAverge = rowAverage.get(c);
+            double recommendation = customerRatingAverge + dotProduct;
+//            System.out.println("Dot Product: " + dotProduct );
+//            System.out.println("customerRatingAverge: " + customerRatingAverge);
+            System.out.println("Recomendation for client " + c + " of product " + p + " is " + recommendation);
+        }
+    }
+    
 
     // for (int i = k + 1; i < S.getColumnDimension(); i++) {
     // S.set(i, i, 0.0);
