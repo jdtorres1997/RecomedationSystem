@@ -8,6 +8,16 @@ import Jama.Matrix;
 import Jama.SingularValueDecomposition;
 
 public class RecomendationSystem {
+	
+	//Compute a dot product between a row c of UkSquareRootSk and a column p of SquareRootSkVk
+	private static double cpDotProduct(Matrix UkSquareRootSk, Matrix SquareRootSkVk, int c, int p){
+		double dotProduct = 0;
+	    for(int j=0; j<UkSquareRootSk.getColumnDimension(); j++){
+	    	dotProduct += UkSquareRootSk.get(c, j)*SquareRootSkVk.get(j, p);
+	    }
+	    
+	    return dotProduct;
+	}
 
   /**
    * @param R
@@ -187,9 +197,16 @@ public class RecomendationSystem {
     Matrix SquareRootSkVk = squareRootSk.times(Vk);
     SquareRootSkVk.print(1, 2);
 
-    // Compute UkSk^(1/2).Sk^(1/2)Vk (dot product)
-    // double dotProduct = UkSquareRootSk.
+    // Calculate the recomendation to customer c and product p
+    int c = 5;
+    int p = 3;
+    double dotProduct = cpDotProduct(UkSquareRootSk, SquareRootSkVk, c, p);
+    double customerRatingAverge = columnAverage.get(c);
+    double recomendation = customerRatingAverge + dotProduct;
 
+    System.out.println("Dot Product: " + dotProduct );
+    System.out.println("customerRatingAverge: " + customerRatingAverge);
+    System.out.println("Recomendation: " + recomendation);
 
     // for (int i = k + 1; i < S.getColumnDimension(); i++) {
     // S.set(i, i, 0.0);
