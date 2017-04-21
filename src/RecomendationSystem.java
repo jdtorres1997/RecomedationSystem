@@ -94,6 +94,7 @@ public class RecomendationSystem {
     BufferedReader b = new BufferedReader(f);
     // Create Matrix of File read
     Matrix A = Matrix.read(b);
+    Matrix Atopn = A.copy();
     System.out.println("A = ");
     // Print matrix A, first parameter is the width(for better read), second is the number of digits afer 0
     A.print(1, 2);
@@ -198,49 +199,66 @@ public class RecomendationSystem {
     SquareRootSkVk.print(1, 2);
 
     // Calculate the recommendation to customer c and product p
+    int c = 0;
+    int p = 0;
+    double dotProduct = cpDotProduct(UkSquareRootSk, SquareRootSkVk, c, p);
+    double customerRatingAverge = rowAverage.get(c);
+    double recommendation = customerRatingAverge + dotProduct;
+    System.out.println("Dot Product: " + dotProduct );
+  	System.out.println("customerRatingAverge: " + customerRatingAverge);
+    System.out.println("Recomendation for client " + c + " of product " + p + " is " + recommendation);
+
+
+
+    //Top-n
+    System.out.println("A Top N:");
+    Atopn.print(1, 2);
     
-    //delete for
-    for(int c = 0; c<A.getRowDimension(); c++){
-        for(int p = 0; p<A.getColumnDimension(); p++){
-//            int c = 1;
-//            int p = 2;
-            double dotProduct = cpDotProduct(UkSquareRootSk, SquareRootSkVk, c, p);
-            double customerRatingAverge = rowAverage.get(c);
-            double recommendation = customerRatingAverge + dotProduct;
-//            System.out.println("Dot Product: " + dotProduct );
-//            System.out.println("customerRatingAverge: " + customerRatingAverge);
-            System.out.println("Recomendation for client " + c + " of product " + p + " is " + recommendation);
-        }
+    //method change positive values to 1
+    for(int i=0; i<Atopn.getRowDimension(); i++){
+    	for(int j=0; j<Atopn.getColumnDimension(); j++){
+    		if(Atopn.get(i, j)>0){
+    			Atopn.set(i, j, 1);
+    		}
+    	}
     }
     
+    // Get average per column
+    ArrayList <Double> columnAverageTopn = getColumnAverage(Atopn);
 
-    // for (int i = k + 1; i < S.getColumnDimension(); i++) {
-    // S.set(i, i, 0.0);
-    // }
-    //
-    // S.print(1, 2);
-    //
-    //
-    // for (int j = k + 1; j < U.getColumnDimension(); j++) {
-    // for (int i = 0; i < U.getRowDimension(); i++) {
-    // U.set(i, j, 0.0);
-    // }
-    // }
-    // U.print(1, 2);
-    // // V.print(1, 2);
-    //
-    //
-    //
-    // for (int i = k + 1; i < V.getRowDimension(); i++) {
-    // for (int j = 0; j < V.getColumnDimension(); j++) {
-    // V.set(i, j, 0.0);
-    // }
-    // }
-    // V.print(1, 2);
-    //
-    // //Calculate Sk^(1/2)
-    // Matrix result = newton(S, Matrix.identity(S.getRowDimension(), S.getColumnDimension()));
-    // result.print(1, 5);
+    // Assign the average if column is 0
+    for (int j = 0; j < Atopn.getColumnDimension(); j++) {
+      for (int i = 0; i < Atopn.getRowDimension(); i++) {
+        if (Atopn.get(i, j) == 0) {
+        	Atopn.set(i, j, columnAverageTopn.get(j));
+        }
+      }
+    }
+
+    System.out.println("Column Average R Top N = ");
+    Atopn.print(1, 2);
+
+    // Calculate Row Average
+    ArrayList<Double> rowAverageTopn = new ArrayList<Double>(Atopn.getRowDimension());
+    // Get average per column
+    rowAverageTopn = getRowAverage(Atopn);
+
+    // To each Rij assign (Rij-rowAverage)
+    for (int i = 0; i < Atopn.getRowDimension(); i++) {
+      for (int j = 0; j < Atopn.getColumnDimension(); j++) {
+    	  Atopn.set(i, j, Atopn.get(i, j) - rowAverageTopn.get(i));
+      }
+    }
+
+    System.out.println("Row Average R Top N = ");
+    Atopn.print(1, 2);
+    
+    
+
+
+
+            
+            
   }
 
   public static Matrix newton(Matrix a, Matrix x0) {
