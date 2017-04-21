@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,8 +56,8 @@ public class RecomendationSystem {
      */
 
     // Read File
-    FileReader f = new FileReader(
-      "C:/Users/AVALENCIA/Documents/workspace-sts-3.8.1.RELEASE/RecomendationSystem/Matrix de entrada/in.txt");
+    String filePath = new File("").getAbsolutePath();
+    FileReader f = new FileReader(filePath + "/input/in.txt");
     BufferedReader b = new BufferedReader(f);
     // Create Matrix of File read
     Matrix A = Matrix.read(b);
