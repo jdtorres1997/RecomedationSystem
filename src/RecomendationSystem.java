@@ -97,7 +97,7 @@ public class RecomendationSystem {
     Matrix Atopn = A.copy();
     System.out.println("A = ");
     // Print matrix A, first parameter is the width(for better read), second is the number of digits afer 0
-    A.print(1, 2);
+    A.print(4, 2);
 
 
     ArrayList<Double> columnAverage = new ArrayList<Double>(A.getColumnDimension());
@@ -116,7 +116,7 @@ public class RecomendationSystem {
 
     System.out.println("Column Average R = ");
     // Print matrix A, first parameter is the width(for better read), second is the number of digits afer 0
-    A.print(1, 2);
+    A.print(4, 2);
 
     // Calculate Row Average
     ArrayList<Double> rowAverage = new ArrayList<Double>(A.getRowDimension());
@@ -131,7 +131,7 @@ public class RecomendationSystem {
     }
 
     System.out.println("Row Average R = ");
-    A.print(1, 2);
+    A.print(4, 2);
 
 
     // compute the singular value decomposition
@@ -139,26 +139,26 @@ public class RecomendationSystem {
     System.out.println();
     // Get Singular Value of A
     // Print matrix A, first parameter is the width(for better read), second is the number of digits afer 0
-    A.print(1, 2);
+    A.print(4, 2);
     SingularValueDecomposition s = A.svd();
     System.out.println("U = ");
     // Get U Matrix
     Matrix U = s.getU();
-    U.print(1, 2);
+    U.print(4, 2);
     System.out.println("Sigma = ");
     // Get Sigma Matrix
     Matrix S = s.getS();
     Matrix identidad = Matrix.identity(S.getRowDimension(), S.getColumnDimension());
-    S.print(1, 2);
+    S.print(4, 2);
 
     // System.out.println("Sigma k = ");
     // Matrix Sk = newton(S, identidad);
-    // Sk.print(1, 2);
+    // Sk.print(4, 2);
 
     System.out.println("V = ");
     // Get V Matrix
     Matrix V = s.getV();
-    V.print(1, 2);
+    V.print(4, 2);
     System.out.println("rank = " + s.rank());
     System.out.println("condition number = " + s.cond());
     System.out.println("2-norm = " + s.norm2());
@@ -166,7 +166,7 @@ public class RecomendationSystem {
     // Calculate singular values
     System.out.println("singular values = ");
     Matrix svalues = new Matrix(s.getSingularValues(), 1);
-    svalues.print(1, 2);
+    svalues.print(4, 2);
 
     // get k to reduce USV
     int k = getK(S);
@@ -178,25 +178,25 @@ public class RecomendationSystem {
     Matrix Vk = V.getMatrix(0, k, 0, V.getColumnDimension() - 1);
 
     System.out.println("Uk: ");
-    Uk.print(1, 2);
+    Uk.print(4, 2);
     System.out.println("Sk: ");
-    Sk.print(1, 2);
+    Sk.print(4, 2);
     System.out.println("Vk: ");
-    Vk.print(1, 2);
+    Vk.print(4, 2);
 
 
     // Compute square-root of Sk
     System.out.println("Sk^(1/2): ");
     Matrix squareRootSk = newton(Sk, Matrix.identity(Sk.getRowDimension(), Sk.getColumnDimension()));
-    squareRootSk.print(1, 2);
+    squareRootSk.print(4, 2);
 
     // Compute resultant matrices
     System.out.println("UkSk^(1/2): ");
     Matrix UkSquareRootSk = Uk.times(squareRootSk);
-    UkSquareRootSk.print(1, 2);
+    UkSquareRootSk.print(4, 2);
     System.out.println("Sk^(1/2)Vk: ");
     Matrix SquareRootSkVk = squareRootSk.times(Vk);
-    SquareRootSkVk.print(1, 2);
+    SquareRootSkVk.print(4, 2);
 
     // Calculate the recommendation to customer c and product p
     int c = 0;
@@ -212,7 +212,7 @@ public class RecomendationSystem {
 
     //Top-n
     System.out.println("A Top N:");
-    Atopn.print(1, 2);
+    Atopn.print(4, 2);
     
     //method change positive values to 1
     for(int i=0; i<Atopn.getRowDimension(); i++){
@@ -236,7 +236,7 @@ public class RecomendationSystem {
     }
 
     System.out.println("Column Average R Top N = ");
-    Atopn.print(1, 2);
+    Atopn.print(4, 2);
 
     // Calculate Row Average
     ArrayList<Double> rowAverageTopn = new ArrayList<Double>(Atopn.getRowDimension());
@@ -251,14 +251,60 @@ public class RecomendationSystem {
     }
 
     System.out.println("Row Average R Top N = ");
-    Atopn.print(1, 2);
+    Atopn.print(4, 2);
     
     
+    
+    
+    
+    
+    
+    
+    
+    // compute the singular value decomposition to Atopn
+    System.out.println("Atopn = U S V^T");
+    System.out.println();
+    // Get Singular Value of A
+    // Print matrix A, first parameter is the width(for better read), second is the number of digits afer 0
+    Atopn.print(4, 2);
+    SingularValueDecomposition stopn = Atopn.svd();
+    System.out.println("U = ");
+    // Get U Matrix
+    Matrix Utopn = stopn.getU();
+    Utopn.print(4, 2);
+    System.out.println("Sigma = ");
+    // Get Sigma Matrix
+    Matrix Stopn = stopn.getS();
+    Matrix identidadtopn = Matrix.identity(Stopn.getRowDimension(), Stopn.getColumnDimension());
+    S.print(4, 2);
+
+    System.out.println("rank = " + s.rank());
+
+    // get k to reduce USV
+    int ktopn = getK(Stopn);
+    System.out.println("k = " + k);
+
+    // Reduce USV with k to obtain Uk Sk Vk
+    Matrix Uktopn = Utopn.getMatrix(0, Utopn.getRowDimension() - 1, 0, ktopn);
+    Matrix Sktopn = Stopn.getMatrix(0, ktopn, 0, ktopn);
+
+    System.out.println("Uktopn: ");
+    Uktopn.print(4, 2);
+    System.out.println("Sktopn: ");
+    Sktopn.print(4, 2);
 
 
+    // Compute square-root of Sk
+    System.out.println("Sktopn^(1/2): ");
+    Matrix squareRootSktopn = newton(Sktopn, Matrix.identity(Sktopn.getRowDimension(), Sktopn.getColumnDimension()));
+    squareRootSktopn.print(4, 2);
 
-            
-            
+    // Compute resultant matrices
+    System.out.println("UkSktopn^(1/2): ");
+    Matrix UkSquareRootSktopn = Uktopn.times(squareRootSktopn);
+    UkSquareRootSktopn.print(4, 4);
+    
+    
   }
 
   public static Matrix newton(Matrix a, Matrix x0) {
