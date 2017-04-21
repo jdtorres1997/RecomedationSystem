@@ -302,17 +302,22 @@ public class RecomendationSystem {
     Matrix UkSquareRootSktopn = Uktopn.times(squareRootSktopn);
     UkSquareRootSktopn.print(4, 2);
     
+    //Unsorted customers relations
+    System.out.println("Unsorted customers relations: ");
     Matrix relationCwithAll = similarCustomers(UkSquareRootSktopn, c);
     relationCwithAll.print(4, 2);
     
-    Matrix SORTED = sortSimilarCustomers(relationCwithAll);
+    //Sorted customers relations
+    System.out.println("Sorted customers relations: ");
+    sortMatrix2xN(relationCwithAll);
     relationCwithAll.print(4, 2);
+  
     
   }
   
   
   
-  public static Matrix sortSimilarCustomers(Matrix A){
+  public static Matrix sortMatrix2xN(Matrix A){
 	  for(int j=1; j<A.getColumnDimension(); j++){
 		  double key = A.get(1, j);
 		  int i = j - 1;
