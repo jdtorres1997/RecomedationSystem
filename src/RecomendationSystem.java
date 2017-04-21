@@ -92,13 +92,14 @@ public class RecomendationSystem {
     String filePath = new File("").getAbsolutePath();
     FileReader f = new FileReader(filePath + "/input/in.txt");
     BufferedReader b = new BufferedReader(f);
+    
     // Create Matrix of File read
     Matrix A = Matrix.read(b);
     Matrix Atopn = A.copy();
+    
     System.out.println("A = ");
     // Print matrix A, first parameter is the width(for better read), second is the number of digits afer 0
     A.print(4, 2);
-
 
     ArrayList<Double> columnAverage = new ArrayList<Double>(A.getColumnDimension());
 
@@ -132,7 +133,6 @@ public class RecomendationSystem {
 
     System.out.println("Row Average R = ");
     A.print(4, 2);
-
 
     // compute the singular value decomposition
     System.out.println("A = U S V^T");
@@ -210,7 +210,7 @@ public class RecomendationSystem {
 
 
 
-    //Top-n
+    //Recommendation TOP-N Products for client c
     System.out.println("A Top N:");
     Atopn.print(4, 2);
     
@@ -223,9 +223,12 @@ public class RecomendationSystem {
     	}
     }
     
+    System.out.println("Positive values ​​changed to 1");
+    Atopn.print(4, 2);
+
+    
     // Get average per column
     ArrayList <Double> columnAverageTopn = getColumnAverage(Atopn);
-
     // Assign the average if column is 0
     for (int j = 0; j < Atopn.getColumnDimension(); j++) {
       for (int i = 0; i < Atopn.getRowDimension(); i++) {
@@ -254,37 +257,32 @@ public class RecomendationSystem {
     Atopn.print(4, 2);
     
     
-    
-    
-    
-    
-    
-    
-    
-    // compute the singular value decomposition to Atopn
-    System.out.println("Atopn = U S V^T");
+    System.out.println("Atopn = Utopn Stopn Vtopn^T");
     System.out.println();
-    // Get Singular Value of A
-    // Print matrix A, first parameter is the width(for better read), second is the number of digits afer 0
+    
+    // Print matrix Atopn, first parameter is the width(for better read), second is the number of digits afer 0
     Atopn.print(4, 2);
+    
+    
     SingularValueDecomposition stopn = Atopn.svd();
+    
     System.out.println("U = ");
     // Get U Matrix
     Matrix Utopn = stopn.getU();
     Utopn.print(4, 2);
+    
     System.out.println("Sigma = ");
     // Get Sigma Matrix
     Matrix Stopn = stopn.getS();
     Matrix identidadtopn = Matrix.identity(Stopn.getRowDimension(), Stopn.getColumnDimension());
     S.print(4, 2);
 
-    System.out.println("rank = " + s.rank());
-
-    // get k to reduce USV
+   
+    // get ktopn to reduce UtopnStopnVtopn
     int ktopn = getK(Stopn);
     System.out.println("k = " + k);
 
-    // Reduce USV with k to obtain Uk Sk Vk
+    // Reduce Uktopn Sktopn with ktopn to obtain Uktopn Sktopn 
     Matrix Uktopn = Utopn.getMatrix(0, Utopn.getRowDimension() - 1, 0, ktopn);
     Matrix Sktopn = Stopn.getMatrix(0, ktopn, 0, ktopn);
 
@@ -294,7 +292,7 @@ public class RecomendationSystem {
     Sktopn.print(4, 2);
 
 
-    // Compute square-root of Sk
+    // Compute square-root of Sktopn
     System.out.println("Sktopn^(1/2): ");
     Matrix squareRootSktopn = newton(Sktopn, Matrix.identity(Sktopn.getRowDimension(), Sktopn.getColumnDimension()));
     squareRootSktopn.print(4, 2);
@@ -302,10 +300,68 @@ public class RecomendationSystem {
     // Compute resultant matrices
     System.out.println("UkSktopn^(1/2): ");
     Matrix UkSquareRootSktopn = Uktopn.times(squareRootSktopn);
-    UkSquareRootSktopn.print(4, 4);
+    UkSquareRootSktopn.print(4, 2);
     
+    Matrix relationCwithAll = similarCustomers(UkSquareRootSktopn, c);
+    relationCwithAll.print(4, 2);
+    
+    Matrix SORTED = sortSimilarCustomers(relationCwithAll);
+    relationCwithAll.print(4, 2);
     
   }
+  
+  
+  
+  public static Matrix sortSimilarCustomers(Matrix A){
+	  for(int j=1; j<A.getColumnDimension(); j++){
+		  double key = A.get(1, j);
+		  int i = j - 1;
+		  while(i>=0 && A.get(1, i)<key){
+			 A.set(1, i+1, A.get(1, i));
+			 A.set(0, i+1, A.get(0, i));
+			 i = i - 1;
+		  }
+		  A.set(1, i+1, key);
+		  A.set(0, i+1, j);
+
+	  }
+	  
+	  return A;
+  }
+  
+
+  // in: Matrix of 
+  public static Matrix similarCustomers(Matrix M, int c){
+	  int columns =  M.getColumnDimension();
+	  Matrix similarClients = new Matrix(2, M.getRowDimension());
+	  
+	  Matrix vectorC = M.getMatrix(c, c, 0, columns-1);
+	  for(int i=0; i<M.getRowDimension(); i++){
+		  Matrix vectorCi = M.getMatrix(i, i, 0, columns-1);
+		  double dotProductCwithCi = dotProductWithMatrix(vectorC, vectorCi);
+		  double normProduct = vectorC.norm2()*vectorCi.norm2();
+		  double simcwithci = dotProductCwithCi / normProduct;
+		  similarClients.set(0, i, i);
+		  similarClients.set(1, i, simcwithci);
+
+	  }
+	  
+	  return similarClients;
+  }
+  
+  
+  public static double dotProductWithMatrix(Matrix vectorA, Matrix vectorB){
+	  double dotProduct = 0;
+	  
+	  for(int i=0; i<vectorA.getColumnDimension(); i++){
+		  dotProduct += vectorA.get(0, i)*vectorB.get(0, i);
+	  }
+	  
+	  return dotProduct;
+	  
+  }
+  
+  
 
   public static Matrix newton(Matrix a, Matrix x0) {
     int contador = 0;
@@ -322,5 +378,8 @@ public class RecomendationSystem {
     } while (error > 0.000001);
     return x0;
   }
+  
+  
+  
 
 }
