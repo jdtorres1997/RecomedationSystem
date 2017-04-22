@@ -11,7 +11,6 @@ import Jama.SingularValueDecomposition;
 
 public class RecomendationSystem {
 
-
   private static Scanner scanner;
 
 
