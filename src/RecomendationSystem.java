@@ -2,10 +2,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-
 import Jama.Matrix;
 import Jama.SingularValueDecomposition;
+import java.util.Scanner;
 
 public class RecomendationSystem {
 	
@@ -42,6 +43,7 @@ public class RecomendationSystem {
 
   // Calculate k to reduce USV matrices
   public static int getK(Matrix S) {
+	  
     double sumaDiagonalCuadrado = 0;
     for (int ij = 0; ij < S.rank(); ij++) {
       sumaDiagonalCuadrado += S.get(ij, ij) * S.get(ij, ij);
@@ -82,6 +84,17 @@ public class RecomendationSystem {
 
 
   public static void main(String[] args) throws IOException {
+	// Calculate the recommendation to customer c and product p
+	int c = 0;
+	int p = 0;
+	
+	Scanner scanner = new Scanner(System.in);
+	
+	System.out.println("Digite al cliente que deseas realizar la prediccion y el top-5: ");
+	c = scanner.nextInt();
+	System.out.println("Digite el producto (para la recomendacion): ");
+	p = scanner.nextInt();
+		  
     /*
      * A will be a Matrix that represent the User and the Rating for each product
      * Columns will be the Products
@@ -198,21 +211,16 @@ public class RecomendationSystem {
     Matrix SquareRootSkVk = squareRootSk.times(Vk);
     SquareRootSkVk.print(4, 2);
 
-    // Calculate the recommendation to customer c and product p
-    int c = 0;
-    int p = 0;
     double dotProduct = cpDotProduct(UkSquareRootSk, SquareRootSkVk, c, p);
     double customerRatingAverge = rowAverage.get(c);
     double recommendation = customerRatingAverge + dotProduct;
     System.out.println("Dot Product: " + dotProduct );
   	System.out.println("customerRatingAverge: " + customerRatingAverge);
-    System.out.println("Recomendation for client " + c + " of product " + p + " is " + recommendation);
-
-
 
     //Recommendation TOP-N Products for client c
     System.out.println("A Top N:");
     Atopn.print(4, 2);
+    
     
     //method change positive values to 1
     for(int i=0; i<Atopn.getRowDimension(); i++){
@@ -225,6 +233,8 @@ public class RecomendationSystem {
     
     System.out.println("Positive values ​​changed to 1");
     Atopn.print(4, 2);
+    
+    Matrix backUpAdjacencyMatrix = Atopn.copy();
 
     
     // Get average per column
@@ -311,11 +321,74 @@ public class RecomendationSystem {
     System.out.println("Sorted customers relations: ");
     sortMatrix2xN(relationCwithAll);
     relationCwithAll.print(4, 2);
-  
+    
+    //Top-5-Customers
+    System.out.println("Top 5 Customers: ");
+    Matrix top5Customers = relationCwithAll.getMatrix(0, 0, 1, 5);
+    top5Customers.print(4, 2);
+    
+    
+    //Adjacency List Customer vs Product
+    System.out.println("Adjacency List: ");
+    backUpAdjacencyMatrix.print(4, 2);
+    
+    //Top-5 products
+    //2xn Matrix
+    //0   1  2  3  4 ...  j
+    //r0 r1 r2 r3 r4 ... rj
+    //ri is times a movie is rated
+    System.out.println("Movies Rated: ");
+    Matrix moviesRated = getMoviesRated(backUpAdjacencyMatrix, top5Customers);
+    moviesRated.print(4, 2);
+    
+    //Sorted movies Rated
+    System.out.println("Sort Movies Rated: ");
+    Matrix moviesRatedSorted = sortMatrix2xN(moviesRated);
+    moviesRatedSorted.print(4, 2);
+    
+    //Recomendation
+    DecimalFormat df = new DecimalFormat("#.00");
+
+    System.out.println("Recomendation rating for client " + c + " of product " + p + " is " + df.format((recommendation)));
+    System.out.println();
+    
+    //Top-5 Movies
+    System.out.println("Top-5 Movies recommended to client " + c + ": ");
+    Matrix top5movies = moviesRatedSorted.getMatrix(0, 0, 0, 4);
+    top5movies.print(2, 0);
+    
     
   }
   
   
+  public static Matrix getMoviesRated(Matrix backUpAdjacencyMatrix, Matrix top5Customers){
+	  Matrix moviesRated = new Matrix(2, backUpAdjacencyMatrix.getColumnDimension());
+	  
+	 //assign index to moviesRated
+	  for(int i=0; i<moviesRated.getColumnDimension(); i++){
+		  moviesRated.set(0, i, i); //assgin index 
+		  moviesRated.set(1, i, 0);  //initial values
+		  
+	  }
+	  //customer i
+	  for(int i = 0; i<top5Customers.getColumnDimension(); i++){
+		  
+		  int customerIndex = (int) top5Customers.get(0, i);
+		  
+		  for(int j=0; j<backUpAdjacencyMatrix.getColumnDimension(); j++){
+			  
+			  if(backUpAdjacencyMatrix.get(customerIndex, j)==1.0){
+				  double anterior = moviesRated.get(1, j);
+				  double siguiente = anterior + 1;
+				  moviesRated.set(1, j, siguiente); //add 1 to movie
+			  }
+		  }
+		  
+	  }
+	  
+	  return moviesRated;
+	  
+  }
   
   public static Matrix sortMatrix2xN(Matrix A){
 	  for(int j=1; j<A.getColumnDimension(); j++){
@@ -342,13 +415,17 @@ public class RecomendationSystem {
 	  
 	  Matrix vectorC = M.getMatrix(c, c, 0, columns-1);
 	  for(int i=0; i<M.getRowDimension(); i++){
-		  Matrix vectorCi = M.getMatrix(i, i, 0, columns-1);
-		  double dotProductCwithCi = dotProductWithMatrix(vectorC, vectorCi);
-		  double normProduct = vectorC.norm2()*vectorCi.norm2();
-		  double simcwithci = dotProductCwithCi / normProduct;
-		  similarClients.set(0, i, i);
-		  similarClients.set(1, i, simcwithci);
-
+		  if(i!=c){
+			  Matrix vectorCi = M.getMatrix(i, i, 0, columns-1);
+			  double dotProductCwithCi = dotProductWithMatrix(vectorC, vectorCi);
+			  double normProduct = vectorC.norm2()*vectorCi.norm2();
+			  double simcwithci = dotProductCwithCi / normProduct;
+			  similarClients.set(0, i, i);
+			  similarClients.set(1, i, simcwithci);
+		  }else{
+			  similarClients.set(0, i, i);
+			  similarClients.set(1, i, 9); // a different number of [-1, 1]
+		  }
 	  }
 	  
 	  return similarClients;
