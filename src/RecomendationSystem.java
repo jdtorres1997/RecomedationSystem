@@ -160,6 +160,11 @@ public class RecomendationSystem {
     // Print matrix A, first parameter is the width(for better read), second is the number of digits after 0
     A.print(4, 2);
     // Calculate the recommendation to customer c and product p
+    
+    //Esta seccion se elimina, ya que no necesitamos solicitarle al cliente datos de prediccion, además para esta opercaion no 
+    //necesitamos hacer la normalizacion.
+    
+   /*
     int c = 0;
     int p = 0;
 
@@ -170,7 +175,7 @@ public class RecomendationSystem {
     System.out.println("Digite el producto (para la recomendacion): ");
     p = scanner.nextInt();
 
-
+    
     // Get the column average of A
     ArrayList<Double> columnAverage = new ArrayList<Double>(A.getColumnDimension());
 
@@ -203,6 +208,8 @@ public class RecomendationSystem {
 
     // System.out.println("Row Average R = ");
     // A.print(4, 2);
+      
+     */
 
     // Compute the singular value decomposition to get A-norm
     System.out.println("A = U S V^T");
@@ -221,10 +228,14 @@ public class RecomendationSystem {
     System.out.println("V = ");
     Matrix V = s.getV();
     V.print(4, 2);
+    
+    //Los utilizaremos?
     System.out.println("Effective numerical matrix rank = " + s.rank());
     System.out.println("Two norm condition number = " + s.cond());
     System.out.println("Two norm = " + s.norm2());
 
+    
+    //?
     // Calculate singular values
     System.out.println("singular values = ");
     Matrix svalues = new Matrix(s.getSingularValues(), 1);
