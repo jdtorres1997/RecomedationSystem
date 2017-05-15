@@ -9,7 +9,7 @@ import java.util.Scanner;
 import Jama.Matrix;
 import Jama.SingularValueDecomposition;
 
-//Cambiado para proyecto final
+//Cambiado para proyecto final. 
 
 public class RecomendationSystem {
 
